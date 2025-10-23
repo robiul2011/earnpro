@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A modern and fast credit card validator tool by Robiul, using the Luhn algorithm for accurate validation of CC numbers, expiration dates, and CVVs." />
+    <meta name="keywords" content="robiul's checker, credit card validator, luhn algorithm, live cc checker, card validation" />
+    <meta name="author" content="Robiul" />
+    <meta name="robots" content="index, follow" />
+    <title>Robiul's Checker | Live CC Validator</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* Robiul's Checker - Modern UI Redesign */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        /* CSS Variables */
+        :root {
+          --primary-hue: 205; /* Blue hue for a techy feel */
+          --secondary-hue: 150; /* Green for success */
+          --error-hue: 0; /* Red for dead/error */
+          
+          --primary-color: hsl(var(--primary-hue), 90%, 55%);
+          --success-color: hsl(var(--secondary-hue), 60%, 50%);
+          --error-color: hsl(var(--error-hue), 80%, 60%);
+          
+          --dark-bg: #0a0e1a;
+          --dark-surface: rgba(23, 29, 46, 0.6);
+          --dark-surface-solid: #171d2e;
+          --dark-text: #e2e8f0;
+          --dark-text-secondary: #94a3b8;
+          --dark-border: rgba(148, 163, 184, 0.2);
+          
+          --radius: 12px;
+          --transition-speed: 0.3s;
+        }
+
+        /* Base & Reset */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          font-family: 'Inter', sans-serif;
+          background-color: var(--dark-bg);
+          color: var(--dark-text);
+          line-height: 1.6;
+          overflow-x: hidden;
+          position: relative;
+        }
+
+        /* Aurora Background Effect */
+        .background-aurora {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          background-image: radial-gradient(ellipse at 20% 20%, hsla(var(--primary-hue), 90%, 55%, 0.2) 0%, transparent 50%),
+                            radial-gradient(ellipse at 80% 70%, hsla(var(--secondary-hue), 60%, 50%, 0.15) 0%, transparent 50%);
+          filter: blur(80px);
+          opacity: 0.8;
+        }
+
+        /* Header */
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 32px;
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          background: rgba(10, 14, 26, 0.5);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid var(--dark-border);
+        }
+
+        .logo {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: var(--dark-text);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .logo i { color: var(--primary-color); }
+        .logo span { color: var(--primary-color); }
+
+        .icon-btn {
+          background: transparent;
+          border: 1px solid var(--dark-border);
+          color: var(--dark-text-secondary);
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 16px;
+          transition: all var(--transition-speed) ease;
+        }
+        .icon-btn:hover {
+          border-color: var(--primary-color);
+          color: var(--primary-color);
+          transform: translateY(-2px);
+        }
+
+        /* Main Content Layout */
+        .main {
+          padding: 32px;
+          display: flex;
+          justify-content: center;
+        }
+
+        .tool-container {
+          width: 100%;
+          max-width: 900px;
+          background: var(--dark-surface);
+          border: 1px solid var(--dark-border);
+          border-radius: var(--radius);
+          padding: 32px;
+          backdrop-filter: blur(16px);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .tool-header {
+          text-align: center;
+          border-bottom: 1px solid var(--dark-border);
+          padding-bottom: 16px;
+        }
+        .tool-header h2 {
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+        }
+        .tool-header h2 i { color: var(--primary-color); }
+        .description {
+          font-size: 1rem;
+          color: var(--dark-text-secondary);
+        }
+
+        /* Stats Section */
+        .stats {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+        }
+        .stat-card {
+          background: rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--dark-border);
+          border-radius: var(--radius);
+          padding: 16px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: all var(--transition-speed) ease;
+        }
+        .stat-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(148, 163, 184, 0.4);
+        }
+        .stat-info h3 {
+          font-size: 0.9rem;
+          color: var(--dark-text-secondary);
+          font-weight: 500;
+          margin-bottom: 4px;
+        }
+        .stat-info span {
+          font-size: 1.75rem;
+          font-weight: 700;
+          font-family: 'JetBrains Mono', monospace;
+        }
+        .stat-icon {
+          font-size: 1.5rem;
+          padding: 12px;
+          border-radius: 8px;
+        }
+        .stat-icon.total { color: var(--dark-text-secondary); background: rgba(148, 163, 184, 0.1); }
+        .stat-icon.valid { color: var(--primary-color); background: hsla(var(--primary-hue), 90%, 55%, 0.1); }
+        .stat-icon.live { color: var(--success-color); background: hsla(var(--secondary-hue), 60%, 50%, 0.1); }
+        .stat-icon.dead { color: var(--error-color); background: hsla(var(--error-hue), 80%, 60%, 0.1); }
+
+        /* Input & Controls */
+        .input-section label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 500;
+        }
+        textarea {
+          width: 100%;
+          min-height: 150px;
+          padding: 12px 16px;
+          background: rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--dark-border);
+          border-radius: var(--radius);
+          color: var(--dark-text);
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 14px;
+          resize: vertical;
+          outline: none;
+          transition: all var(--transition-speed) ease;
+        }
+        textarea:focus {
+          border-color: var(--primary-color);
+          box-shadow: 0 0 0 3px hsla(var(--primary-hue), 90%, 55%, 0.2);
+        }
+
+        .controls {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .btn {
+          padding: 12px 24px;
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 1rem;
+          font-weight: 600;
+          transition: all var(--transition-speed) ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+        }
+        .btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+        .btn.primary { background: var(--primary-color); color: white; }
+        .btn.danger { background: var(--error-color); color: white; }
+        .btn.secondary { background: var(--dark-surface-solid); color: var(--dark-text); border: 1px solid var(--dark-border); }
+
+        /* Progress Bar */
+        .progress-container {
+          height: 8px;
+          background-color: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        #progress-bar {
+          height: 100%;
+          background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+          width: 0%;
+          transition: width 0.4s ease-in-out;
+          border-radius: 4px;
+        }
+
+        /* Results Area */
+        .results-area {
+          border-top: 1px solid var(--dark-border);
+          padding-top: 24px;
+        }
+        .filter-controls {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+        .filter-controls h3 {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 600;
+          color: var(--dark-text-secondary);
+        }
+        .filter-buttons {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+        .filter-btn {
+          background: var(--dark-surface-solid);
+          color: var(--dark-text-secondary);
+          padding: 8px 16px;
+          border: 1px solid var(--dark-border);
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          font-weight: 500;
+          transition: all var(--transition-speed) ease;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .filter-btn:hover {
+          color: var(--dark-text);
+          border-color: var(--dark-text-secondary);
+        }
+        .filter-btn.active {
+          background: var(--primary-color);
+          color: white;
+          border-color: var(--primary-color);
+        }
+        .filter-btn span {
+            color: var(--dark-text-secondary);
+            font-weight: 400;
+            font-size: 0.85em;
+            margin-left: 4px;
+            transition: color var(--transition-speed) ease;
+        }
+        .filter-btn.active span {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        body.light .filter-btn span {
+            color: var(--dark-text-secondary);
+        }
+        body.light .filter-btn.active span {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #check-summary {
+            color: var(--dark-text-secondary);
+            text-align: center;
+            margin: -4px 0 12px 0;
+            font-family: 'JetBrains Mono', monospace;
+            height: 20px; /* Prevent layout shift */
+            transition: color 0.3s ease;
+        }
+
+        .results {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+        .result-card {
+          background: rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--dark-border);
+          border-left: 4px solid var(--dark-text-secondary);
+          border-radius: var(--radius);
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transition: all var(--transition-speed) ease;
+          animation: fadeIn 0.5s ease-out;
+        }
+        .result-card:hover {
+          transform: scale(1.02);
+          border-color: rgba(148, 163, 184, 0.4);
+        }
+        .result-card.live { border-left-color: var(--success-color); }
+        .result-card.dead { border-left-color: var(--error-color); }
+
+        .card-main-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+        }
+        .card-number {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 1.1rem;
+          letter-spacing: 1px;
+        }
+        .card-actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .copy-card-btn {
+            background: transparent;
+            border: 1px solid var(--dark-border);
+            color: var(--dark-text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .copy-card-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .status {
+          padding: 4px 12px;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          color: white;
+        }
+        .live .status { background: var(--success-color); }
+        .dead .status { background: var(--error-color); }
+        .invalid .status { background: var(--dark-text-secondary); }
+
+        .card-details {
+          display: flex;
+          gap: 16px;
+          align-items: center;
+          font-size: 0.9rem;
+          color: var(--dark-text-secondary);
+          flex-wrap: wrap;
+        }
+        .card-details span {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .card-type {
+          background: hsla(var(--primary-hue), 90%, 55%, 0.1);
+          color: var(--primary-color);
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-weight: 600;
+        }
+        .reason {
+          font-size: 0.8rem;
+          color: var(--dark-text-secondary);
+          background-color: rgba(0, 0, 0, 0.2);
+          padding: 6px 10px;
+          border-radius: 6px;
+          border-left: 2px solid var(--error-color);
+        }
+
+        /* Footer */
+        .footer {
+          text-align: center;
+          padding: 24px 32px;
+          margin-top: 32px;
+          border-top: 1px solid var(--dark-border);
+          color: var(--dark-text-secondary);
+          font-size: 0.9rem;
+        }
+        .footer-links {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          margin-top: 8px;
+        }
+        .footer-links a {
+          color: var(--dark-text-secondary);
+          text-decoration: none;
+          transition: color var(--transition-speed) ease;
+        }
+        .footer-links a:hover {
+          color: var(--primary-color);
+        }
+
+        /* Toast Notification */
+        #toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: var(--dark-surface-solid);
+            color: var(--dark-text);
+            border: 1px solid var(--dark-border);
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        #toast-notification.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+
+        /* Light Theme (Optional) */
+        body.light {
+          --dark-bg: #f1f5f9;
+          --dark-surface: rgba(255, 255, 255, 0.7);
+          --dark-surface-solid: #ffffff;
+          --dark-text: #0f172a;
+          --dark-text-secondary: #475569;
+          --dark-border: rgba(100, 116, 139, 0.2);
+        }
+        body.light .background-aurora {
+          opacity: 0.5;
+          filter: blur(100px);
+        }
+        body.light .header {
+          background: rgba(241, 245, 249, 0.5);
+        }
+        body.light #toast-notification {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        /* Animations & Utility */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .hidden { display: none !important; }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .header, .main, .footer { padding: 16px; }
+          .tool-container { padding: 16px; gap: 20px; }
+          .tool-header h2 { font-size: 1.5rem; }
+          .stats { grid-template-columns: repeat(2, 1fr); }
+          .controls { grid-template-columns: 1fr; }
+          .filter-controls { flex-direction: column; align-items: stretch; }
+          .filter-buttons { justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+          .stats { grid-template-columns: 1fr; }
+          .card-main-info { flex-direction: column; align-items: flex-start; gap: 8px; }
+          .card-details { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-aurora"></div>
+
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-check-double"></i>
+            Robiul's <span>Checker</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" id="themeToggle" title="Toggle theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="tool-container">
+            <div class="tool-header">
+                <h2><i class="fas fa-bolt"></i> Live Credit Card Validator</h2>
+                <p class="description">Enter card details below to begin the validation process.</p>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Total Cards</h3>
+                        <span id="total-count">0</span>
+                    </div>
+                    <div class="stat-icon total"><i class="fas fa-list-ol"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Valid (Luhn)</h3>
+                        <span id="valid-count">0</span>
+                    </div>
+                    <div class="stat-icon valid"><i class="fas fa-check-circle"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Live</h3>
+                        <span id="live-count">0</span>
+                    </div>
+                    <div class="stat-icon live"><i class="fas fa-heartbeat"></i></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-info">
+                        <h3>Dead</h3>
+                        <span id="dead-count">0</span>
+                    </div>
+                    <div class="stat-icon dead"><i class="fas fa-times-circle"></i></div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <label for="card-input">Enter Credit Cards (Format: CARD|MM|YYYY|CVV)</label>
+                <textarea id="card-input" placeholder="5579100452783413|03|2025|996&#10;4532123456789012|12|2026|123"></textarea>
+            </div>
+
+            <div class="controls">
+                <button id="validate-btn" class="btn primary">
+                    <i class="fas fa-play"></i> Start Check
+                </button>
+                <button id="stop-btn" class="btn danger" disabled>
+                    <i class="fas fa-stop"></i> Stop
+                </button>
+                <button id="clear-btn" class="btn secondary">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-container">
+                    <div id="progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="results-area">
+                <div class="filter-controls">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all"><i class="fas fa-globe-asia"></i> All</button>
+                        <button class="filter-btn" data-filter="valid"><i class="fas fa-check-circle"></i> Valid <span id="valid-filter-count">(0)</span></button>
+                        <button class="filter-btn" data-filter="live"><i class="fas fa-heartbeat"></i> Live <span id="live-filter-count">(0)</span></button>
+                        <button class="filter-btn" data-filter="dead"><i class="fas fa-times-circle"></i> Dead <span id="dead-filter-count">(0)</span></button>
+                    </div>
+                    <button id="copy-btn" class="filter-btn"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                <div id="check-summary"></div>
+                <div id="results-container" class="results">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 Robiul's Checker. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="#" target="_blank" rel="noopener">Privacy Policy</a>
+            <a href="#" target="_blank" rel="noopener">Terms of Service</a>
+        </div>
+    </footer>
+    
+    <div id="toast-notification"></div>
+
+    <script>
+        class CCValidator {
+            constructor() {
+                this.cardPatterns = {
+                    visa: { pattern: /^4[0-9]{12}(?:[0-9]{3})?$/, cvvLength: [3] },
+                    mastercard: { pattern: /^5[1-5][0-9]{14}$/, cvvLength: [3] },
+                    amex: { pattern: /^3[47][0-9]{13}$/, cvvLength: [4] },
+                    discover: { pattern: /^6(?:011|5[0-9]{2})[0-9]{12}$/, cvvLength: [3] },
+                    diners: { pattern: /^3(?:0[0-5]|[68][0-9])[0-9]{11}$/, cvvLength: [3] },
+                    jcb: { pattern: /^(?:2131|1800|35\d{3})\d{11}$/, cvvLength: [3] },
+                };
+                this.isProcessing = false;
+                this.currentBatch = null;
+            }
+
+            extractCardData(cardData) {
+                const parts = cardData.split("|").map((part) => part.trim());
+                return {
+                    number: parts[0] || "",
+                    month: parts[1] || "",
+                    year: parts[2] || "",
+                    cvv: parts[3] || "",
+                };
+            }
+
+            luhnCheck(cardNumber) {
+                const cleaned = cardNumber.replace(/\D/g, "");
+                if (cleaned.length < 13 || cleaned.length > 19) return false;
+                let sum = 0;
+                let shouldDouble = false;
+                for (let i = cleaned.length - 1; i >= 0; i--) {
+                    let digit = parseInt(cleaned.charAt(i), 10);
+                    if (shouldDouble) {
+                        digit *= 2;
+                        if (digit > 9) digit -= 9;
+                    }
+                    sum += digit;
+                    shouldDouble = !shouldDouble;
+                }
+                return sum % 10 === 0;
+            }
+
+            validateExpiration(month, year) {
+                if (!month || !year || month.length > 2 || month.length === 0) return false;
+                const mm = parseInt(month, 10);
+                if (mm < 1 || mm > 12) return false;
+                const currentYear = new Date().getFullYear();
+                const currentMonth = new Date().getMonth() + 1;
+                let fullYear = parseInt(year, 10);
+                if (year.length === 2) fullYear += 2000;
+                else if (year.length !== 4) return false;
+                if (fullYear < currentYear || (fullYear === currentYear && mm < currentMonth)) return false;
+                return true;
+            }
+
+            validateCVV(cvv, cardType) {
+                if (!cvv) return false;
+                const typeInfo = this.cardPatterns[cardType] || { cvvLength: [3, 4] }; // Default to 3,4
+                return typeInfo.cvvLength.includes(cvv.length) && /^\d+$/.test(cvv);
+            }
+
+            validateCard(cardData) {
+                const { number, month, year, cvv } = this.extractCardData(cardData);
+                if (!number || !month || !year || !cvv) return { valid: false, reason: "Incomplete format. Use CARD|MM|YY|CVV."};
+                const cleanedNumber = number.replace(/\D/g, "");
+                const type = Object.keys(this.cardPatterns).find(key => this.cardPatterns[key].pattern.test(cleanedNumber)) || "unknown";
+                if (!this.luhnCheck(cleanedNumber)) return { valid: false, type, reason: "Failed Luhn check" };
+                if (!this.validateExpiration(month, year)) return { valid: false, type, reason: "Invalid expiration date" };
+                if (!this.validateCVV(cvv, type)) return { valid: false, type, reason: "Invalid CVV" };
+                return { valid: true, type };
+            }
+
+            simulateStatus() {
+                return Math.random() < 0.2 ? "LIVE" : "DEAD";
+            }
+
+            async processBatch(cardsData, progressCallback, resultCallback) {
+                if (this.isProcessing) return;
+                this.isProcessing = true;
+                this.currentBatch = { total: cardsData.length, processed: 0, valid: 0, live: 0, dead: 0 };
+                for (let i = 0; i < cardsData.length; i++) {
+                    if (!this.isProcessing) break;
+                    const cardData = cardsData[i].trim();
+                    if (!cardData) {
+                        this.currentBatch.total--;
+                        continue;
+                    };
+                    const validation = this.validateCard(cardData);
+                    let status = "INVALID";
+                    if (validation.valid) {
+                        status = this.simulateStatus();
+                        this.currentBatch.valid++;
+                        if (status === "LIVE") this.currentBatch.live++;
+                        else this.currentBatch.dead++;
+                    }
+                    this.currentBatch.processed++;
+                    const progress = this.currentBatch.total > 0 ? Math.floor((this.currentBatch.processed / this.currentBatch.total) * 100) : 0;
+                    resultCallback({ cardData, ...validation, status });
+                    progressCallback(this.currentBatch, progress);
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+                this.isProcessing = false;
+                return this.currentBatch;
+            }
+
+            stopProcessing() {
+                this.isProcessing = false;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const validator = new CCValidator();
+            const cardInput = document.getElementById("card-input");
+            const validateBtn = document.getElementById("validate-btn");
+            const stopBtn = document.getElementById("stop-btn");
+            const clearBtn = document.getElementById("clear-btn");
+            const themeToggle = document.getElementById("themeToggle");
+            const progressBar = document.getElementById("progress-bar");
+            const resultsContainer = document.getElementById("results-container");
+            const filterButtons = document.querySelectorAll(".filter-btn");
+            const copyBtn = document.getElementById("copy-btn");
+            const checkSummary = document.getElementById("check-summary");
+            
+            const counters = {
+                total: document.getElementById("total-count"),
+                valid: document.getElementById("valid-count"),
+                live: document.getElementById("live-count"),
+                dead: document.getElementById("dead-count"),
+            };
+            const filterCounters = {
+                valid: document.getElementById("valid-filter-count"),
+                live: document.getElementById("live-filter-count"),
+                dead: document.getElementById("dead-filter-count"),
+            };
+            let currentFilter = "all";
+            let toastTimeout;
+
+            function showToast(message) {
+                const toast = document.getElementById('toast-notification');
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toast.textContent = message;
+                toast.classList.add('show');
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            function toggleTheme() {
+                const isLight = document.body.classList.toggle("light");
+                themeToggle.querySelector("i").className = isLight ? "fas fa-sun" : "fas fa-moon";
+                localStorage.setItem("theme", isLight ? "light" : "dark");
+            }
+
+            const savedTheme = localStorage.getItem("theme");
+            if (savedTheme === "light") {
+                document.body.classList.add("light");
+                themeToggle.querySelector("i").className = "fas fa-sun";
+            }
+
+            function filterResults(filterType) {
+                currentFilter = filterType;
+                resultsContainer.querySelectorAll(".result-card").forEach(card => {
+                    const shouldShow = filterType === "all" ||
+                        (filterType === "valid" && (card.classList.contains("live") || card.classList.contains("dead"))) ||
+                        card.classList.contains(filterType);
+                    card.classList.toggle("hidden", !shouldShow);
+                });
+                filterButtons.forEach(btn => {
+                    if(btn.dataset.filter){ // Only target actual filter buttons
+                        btn.classList.toggle("active", btn.dataset.filter === filterType);
+                    }
+                });
+            }
+
+            themeToggle.addEventListener("click", toggleTheme);
+            filterButtons.forEach(btn => {
+                if(btn.dataset.filter){
+                    btn.addEventListener("click", () => filterResults(btn.dataset.filter));
+                }
+            });
+
+            function updateCounters(stats) {
+                counters.total.textContent = stats.total;
+                counters.valid.textContent = stats.valid;
+                counters.live.textContent = stats.live;
+                counters.dead.textContent = stats.dead;
+                filterCounters.valid.textContent = `(${stats.valid})`;
+                filterCounters.live.textContent = `(${stats.live})`;
+                filterCounters.dead.textContent = `(${stats.dead})`;
+            }
+
+            function addResultToUI(result) {
+                const cardElement = document.createElement("div");
+                cardElement.className = `result-card ${result.status.toLowerCase()}`;
+                cardElement.dataset.card = result.cardData; // Store full data on element
+                
+                const { number, month, year, cvv } = validator.extractCardData(result.cardData);
+                
+                cardElement.innerHTML = `
+                    <div class="card-main-info">
+                        <div class="card-number">${number}</div>
+                        <div class="card-actions">
+                            <div class="status">${result.status}</div>
+                            <button class="copy-card-btn" title="Copy card"><i class="fas fa-copy"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-details">
+                        <span><i class="fas fa-calendar-alt"></i> Exp: ${month}/${year.length <= 2 ? "20" + year : year}</span>
+                        <span><i class="fas fa-lock"></i> CVV: ${cvv}</span>
+                        <span class="card-type">${result.type.toUpperCase()}</span>
+                    </div>
+                    ${result.reason ? `<div class="reason">${result.reason}</div>` : ""}
+                `;
+                
+                cardElement.querySelector('.copy-card-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(result.cardData).then(() => {
+                        showToast('Card copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        showToast('Failed to copy card.');
+                    });
+                });
+
+                const shouldShow = currentFilter === "all" ||
+                    (currentFilter === "valid" && (result.status === "LIVE" || result.status === "DEAD")) ||
+                    cardElement.classList.contains(currentFilter);
+                if (!shouldShow) cardElement.classList.add("hidden");
+                
+                resultsContainer.prepend(cardElement);
+            }
+
+            validateBtn.addEventListener("click", async () => {
+                const cardsData = cardInput.value.split("\n").filter(line => line.trim());
+                if (cardsData.length === 0) return;
+
+                validateBtn.disabled = true;
+                stopBtn.disabled = false;
+                resultsContainer.innerHTML = "";
+                checkSummary.textContent = "";
+                
+                await validator.processBatch(cardsData, (stats, progress) => {
+                    progressBar.style.width = `${progress}%`;
+                    updateCounters(stats);
+                    checkSummary.textContent = `Checked: ${stats.processed} / ${stats.total}`;
+                }, addResultToUI);
+
+                const finalStats = validator.currentBatch;
+                checkSummary.textContent = `Check Complete: ${finalStats.total} cards checked.`;
+                validateBtn.disabled = false;
+                stopBtn.disabled = true;
+            });
+
+            stopBtn.addEventListener("click", () => {
+                validator.stopProcessing();
+                stopBtn.disabled = true;
+                validateBtn.disabled = false;
+                const finalStats = validator.currentBatch;
+                checkSummary.textContent = `Check Stopped: ${finalStats.processed} of ${finalStats.total} cards checked.`;
+            });
+
+            clearBtn.addEventListener("click", () => {
+                cardInput.value = "";
+                resultsContainer.innerHTML = "";
+                progressBar.style.width = "0%";
+                checkSummary.textContent = "";
+                Object.values(counters).forEach(counter => (counter.textContent = "0"));
+                Object.values(filterCounters).forEach(counter => (counter.textContent = "(0)"));
+                filterResults("all");
+            });
+
+            function copyResults(selector, categoryName) {
+                const cardsToCopy = Array.from(resultsContainer.querySelectorAll(selector))
+                                         .map(card => card.dataset.card)
+                                         .reverse(); // Results are prepended, so reverse to maintain original order
+
+                if (cardsToCopy.length === 0) {
+                    showToast(`No ${categoryName} cards to copy.`);
+                    return;
+                }
+
+                const textToCopy = cardsToCopy.join('\n');
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showToast(`${cardsToCopy.length} ${categoryName} card${cardsToCopy.length > 1 ? 's' : ''} copied!`);
+                }).catch(err => {
+                    console.error('Failed to copy results: ', err);
+                    showToast(`Failed to copy ${categoryName} cards.`);
+                });
+            }
+
+            copyBtn.addEventListener('click', () => {
+                switch (currentFilter) {
+                    case 'live':
+                        copyResults('.result-card.live', 'Live');
+                        break;
+                    case 'dead':
+                        copyResults('.result-card.dead', 'Dead');
+                        break;
+                    case 'valid':
+                    case 'all':
+                    default:
+                        copyResults('.result-card.live, .result-card.dead', 'Valid');
+                        break;
+                }
+            });
+
+            const structuredData = {
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "Robiul's Checker - Live CC Validator",
+                "description": "A modern and fast credit card validator tool by Robiul, using the Luhn algorithm for accurate validation.",
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": "Web",
+                "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            };
+            const scriptTag = document.createElement("script");
+            scriptTag.type = "application/ld+json";
+            scriptTag.text = JSON.stringify(structuredData);
+            document.head.appendChild(scriptTag);
+        });
+    </script>
+</body>
+</html>
